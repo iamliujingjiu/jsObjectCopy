@@ -65,8 +65,28 @@ describe('Object', function () {
 
 describe('Object', function () {
     describe('#shallowCopy()', function () {
-        it("(Object.shallowCopy({name:'test1'},{name:'test2'},null,'111111111') !== Object.assign({name:'test1'},{name:'test2'},null,'111111111')", function () {
+        it("Object.shallowCopy({name:'test1'},{name:'test2'},null,'111111111') !== Object.assign({name:'test1'},{name:'test2'},null,'111111111')", function () {
             assert.deepStrictEqual(Object.shallowCopy({name:'test1'},{name:'test2'},null,'111111111'), Object.assign({name:'test1'},{name:'test2'},null,'111111111'));
+        });
+    });
+});
+
+
+describe('Object', function () {
+    describe('#shallowCopy()', function () {
+        it("Object.shallowCopy({name:leftVal},{name:rightVal}) !== Object.assign({name:leftVal},{name:rightVal})", function () {
+            var leftVal = Symbol(1),rightVal = Symbol(2);
+            assert.deepStrictEqual(Object.shallowCopy({name:leftVal},{name:rightVal}), Object.assign({name:leftVal},{name:rightVal}));
+        });
+    });
+});
+
+
+describe('Object', function () {
+    describe('#shallowCopy()', function () {
+        it("Object.shallowCopy([leftVal],[rightVal]) !== Object.assign[leftVal],[rightVal]", function () {
+            var leftVal = Symbol(1),rightVal = Symbol(2);
+            assert.deepStrictEqual(Object.shallowCopy([leftVal],[rightVal]), Object.assign([leftVal],[rightVal]));
         });
     });
 });
