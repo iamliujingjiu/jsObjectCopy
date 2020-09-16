@@ -1,92 +1,136 @@
-var assert = require('assert');
-var shallowCopy = require('../shallowCopy');
+/**
+ * 测试性能
+ */
+var _ownKeys = Reflect && Reflect.ownKeys,
+_getOwnPropertySymbols = Object.getOwnPropertySymbols,
+_getOwnPropertyNames = Object.getOwnPropertyNames,
+_hasOwnProperty = Object.prototype.hasOwnProperty;
 
-shallowCopy.initShallowCopy();
+// 目前测试量不多 但是按照目前结论
+// 无论什么情况  4的性能是比3要好的多的 而且4没有兼容问题
+// 当全部是Symbol数据 1性能最好 5其次 2最差
+// 当Symbol占一半时 5性能最好 1其次  2最差
+// 结论:没有必要用Object.getOwnPropertyNames
 
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy(true,false) !== Object.assign(true,false)", function () {
-            assert.equal(Object.shallowCopy(true,false), Object.assign(true,false));
-        });
-    });
+
+// var obj = {};
+// for(var i = 0,length = 1000000;i<length;i++){
+//     obj['name' + i] = i;
+// }
+// //这4个耗时出乎我意料之外
+// // 4 是最稳定的最快的
+// // 1 3 差不多
+// // 2 是最慢的
+// // 可以用5取代1 2?
+// it("1", function () {
+//     var keys = _ownKeys(obj);
+// });
+
+
+// it("2", function () {
+//     var keys = _getOwnPropertySymbols(obj).concat(_getOwnPropertyNames(obj));
+// });
+
+
+// it("3", function () {
+//     var keys = _getOwnPropertyNames(obj);
+// });
+
+
+// it("4", function () {
+//     var keys = [];
+//     for(var key in obj){
+//         keys.push(key);
+//     }
+// });
+
+// it("5", function () {
+//     var keys = _getOwnPropertySymbols(obj);
+//     for(var key in obj){
+//         keys.push(key);
+//     }
+// });
+
+
+// var obj = {};
+// for(var i = 0,length = 1000000;i<length;i++){
+//     obj[Symbol(i)] = i;
+// }
+// //这4个耗时出乎我意料之外
+// // 4 是最稳定的最快的
+// // 1 3 差不多
+// // 2 是最慢的
+// // 可以用5取代1 2?
+// it("1", function () {
+//     var keys = _ownKeys(obj);
+// });
+
+
+// it("2", function () {
+//     var keys = _getOwnPropertySymbols(obj).concat(_getOwnPropertyNames(obj));
+// });
+
+
+// it("3", function () {
+//     var keys = _getOwnPropertyNames(obj);
+// });
+
+
+// it("4", function () {
+//     var keys = [];
+//     for(var key in obj){
+//         keys.push(key);
+//     }
+// });
+
+// it("5", function () {
+//     var keys = _getOwnPropertySymbols(obj);
+//     for(var key in obj){
+//         keys.push(key);
+//     }
+// });
+
+
+
+
+var obj = {};
+for(var i = 0,length = 500000;i<length;i++){
+    obj[Symbol(i)] = i;
+}
+
+for(var j = 0,length = 500000;j<length;j++){
+    obj['name' + j] = j;
+}
+//这4个耗时出乎我意料之外
+// 4 是最稳定的最快的
+// 1 3 差不多
+// 2 是最慢的
+// 可以用5取代1 2?
+it("1", function () {
+    var keys = _ownKeys(obj);
 });
 
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy(1,2) !== Object.assign(1,2)", function () {
-            assert.equal(Object.shallowCopy(1,2), Object.assign(1,2));
-        });
-    });
+
+it("2", function () {
+    var keys = _getOwnPropertySymbols(obj).concat(_getOwnPropertyNames(obj));
 });
 
 
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy(1n,2n) !== Object.assign(1n,2n)", function () {
-            assert.equal(Object.shallowCopy(1n,2n), Object.assign(1n,2n));
-        });
-    });
+it("3", function () {
+    var keys = _getOwnPropertyNames(obj);
 });
 
 
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy(leftVal,rightVal) !== Object.assign(leftVal,rightVal)", function () {
-            var leftVal = Symbol(1),rightVal = Symbol(2);
-            assert.equal(Object.shallowCopy(leftVal,rightVal), Object.assign(leftVal,rightVal));
-        });
-    });
+it("4", function () {
+    var keys = [];
+    for(var key in obj){
+        keys.push(key);
+    }
 });
 
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy([1,2,3,4,5,6],[11,22,33,44,55,66,77,88,99]) !== Object.assign([1,2,3,4,5,6],[11,22,33,44,55,66,77,88,99])", function () {
-            assert.deepStrictEqual(Object.shallowCopy([1,2,3,4,5,6],[11,22,33,44,55,66,77,88,99]), Object.assign([1,2,3,4,5,6],[11,22,33,44,55,66,77,88,99]));
-        });
-    });
-});
-
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy({name:'test1'},{name:'test2'}) !== Object.assign({name:'test1'},{name:'test2'})", function () {
-            assert.deepStrictEqual(Object.shallowCopy({name:'test1'},{name:'test2'}), Object.assign({name:'test1'},{name:'test2'}));
-        });
-    });
-});
-
-
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy({name:'test1'},{name:'test2'},[11,22,33,44,55,66,77,88,99]) !== Object.assign({name:'test1'},{name:'test2'},[11,22,33,44,55,66,77,88,99])", function () {
-            assert.deepStrictEqual(Object.shallowCopy({name:'test1'},{name:'test2'},[11,22,33,44,55,66,77,88,99]), Object.assign({name:'test1'},{name:'test2'},[11,22,33,44,55,66,77,88,99]));
-        });
-    });
-});
-
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy({name:'test1'},{name:'test2'},null,'111111111') !== Object.assign({name:'test1'},{name:'test2'},null,'111111111')", function () {
-            assert.deepStrictEqual(Object.shallowCopy({name:'test1'},{name:'test2'},null,'111111111'), Object.assign({name:'test1'},{name:'test2'},null,'111111111'));
-        });
-    });
-});
-
-
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy({name:leftVal},{name:rightVal}) !== Object.assign({name:leftVal},{name:rightVal})", function () {
-            var leftVal = Symbol(1),rightVal = Symbol(2);
-            assert.deepStrictEqual(Object.shallowCopy({name:leftVal},{name:rightVal}), Object.assign({name:leftVal},{name:rightVal}));
-        });
-    });
-});
-
-
-describe('Object', function () {
-    describe('#shallowCopy()', function () {
-        it("Object.shallowCopy([leftVal],[rightVal]) !== Object.assign[leftVal],[rightVal]", function () {
-            var leftVal = Symbol(1),rightVal = Symbol(2);
-            assert.deepStrictEqual(Object.shallowCopy([leftVal],[rightVal]), Object.assign([leftVal],[rightVal]));
-        });
-    });
+it("5", function () {
+    var keys = _getOwnPropertySymbols(obj);
+    for(var key in obj){
+        keys.push(key);
+    }
 });

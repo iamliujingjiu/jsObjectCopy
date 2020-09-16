@@ -1,5 +1,5 @@
 var _isArray = Array.isArray,
-_ownKeys = Reflect && Reflect.ownKey,
+_ownKeys = Reflect && Reflect.ownKeys,
 _getOwnPropertySymbols = Object.getOwnPropertySymbols,
 _getOwnPropertyNames = Object.getOwnPropertyNames,
 _hasOwnProperty = Object.prototype.hasOwnProperty,
