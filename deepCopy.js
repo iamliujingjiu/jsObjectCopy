@@ -1,22 +1,25 @@
 
-var _isArray = Array.isArray,
+var init = false,
+_isArray = Array.isArray,
 _ownKeys = Reflect && Reflect.ownKeys,
 _getOwnPropertySymbols = Object.getOwnPropertySymbols,
-_getOwnPropertyNames = Object.getOwnPropertyNames,
-_hasOwnProperty = Object.prototype.hasOwnProperty,
-_defineProperty = Object.defineProperty;
+// _getOwnPropertyNames = Object.getOwnPropertyNames,
+_keys = Object.keys,
 
-var init = false;
+_hasOwnProperty = Object.prototype.hasOwnProperty,
+_defineProperty = Object.defineProperty,
+_getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+
 function initDeepCopy(){
     if(init){
         return;
     }
     init = true;
-    
+
     _defineProperty(Object,'deepCopy',{
         value : function deepCopy(){
             var target,i = 1,length = arguments.length,
-            copy,j = 0,n = 0,keysLen,key,copyLen,copykeys,copyValue;
+            copy,j = 0,n = 0,keysLen,key,copyLen,copykeys;
 
             target = arguments[0];
             if(!isObj(target)){
@@ -33,19 +36,22 @@ function initDeepCopy(){
                     }
                 }else{
                     if(_ownKeys){
-                        copykeys = _ownKeys(copy);
+                        copykeys = _getCopykeys(_ownKeys,copy);
                     }else if(_getOwnPropertySymbols){
-                        copykeys = _getOwnPropertySymbols(copy).concat(_getOwnPropertyNames(copy));
-                    }else if(_getOwnPropertyNames){
-                        copykeys = _getOwnPropertyNames(copy);
+                        copykeys = _getCopykeys(_getOwnPropertySymbols,copy);
+                        copykeys = copykeys.concat(_keys(copy));
+                    }else if(_keys){
+                        copykeys = _keys(copy);
                     }else{
                         for(key in copy){
-                            copyData(target,copy,key);
+                            if(_hasOwnProperty.call(copy,key)){
+                                copyData(target,copy,key);
+                            }
                         }
                         continue;
                     }
-                    console.log('copykeys : ' + JSON.stringify(copykeys));
-                    for(n = 0,keysLen = copykeys.length;n<keysLen;n++){
+
+                    for(j = 0,keysLen = copykeys.length;j<keysLen;j++){
                         key = copykeys[n];
                         copyData(target,copy,key);
                     }
@@ -57,17 +63,22 @@ function initDeepCopy(){
         configurable: false,
         enumerable: false
     })
-}
 
+
+}
 function copyData(target,copy,key){
+    var copyValue;
     if(_hasOwnProperty.call(copy,key)){
         copyValue = copy[key];
+        if(copyValue === target){
+            return;
+        }
         if(isObj(copyValue) && !_isArray(copyValue)){
             target[key] = {};
-            deepCopy(target[key],copyValue);
+            Object.deepCopy(target[key],copyValue);
         }else if(_isArray(copyValue)){
             target[key] = [];
-            deepCopy(target[key],copyValue);
+            Object.deepCopy(target[key],copyValue);
         }else{
             target[key] = copyValue;
         }
@@ -79,6 +90,12 @@ function isObj(data){
         return true;
     }
     return false;
+}
+
+function _getCopykeys(func,obj){
+    return func(obj).filter(function(value){
+        return _getOwnPropertyDescriptor(obj,value).enumerable;
+    });
 }
 
 module.exports = {

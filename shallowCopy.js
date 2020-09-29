@@ -1,11 +1,13 @@
-var _isArray = Array.isArray,
+var init = false, 
+_isArray = Array.isArray,
 _ownKeys = Reflect && Reflect.ownKeys,
 _getOwnPropertySymbols = Object.getOwnPropertySymbols,
-_getOwnPropertyNames = Object.getOwnPropertyNames,
+// _getOwnPropertyNames = Object.getOwnPropertyNames,
+_keys = Object.keys,
 _hasOwnProperty = Object.prototype.hasOwnProperty,
-_defineProperty = Object.defineProperty;
+_defineProperty = Object.defineProperty,
+_getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 
-var init = false;
 function initShallowCopy(){
     if(init){
         return;
@@ -17,7 +19,7 @@ function initShallowCopy(){
             target,copy,copykeys,
             i = 1,j,n,keysLen = 0,
             copyLen,key;
-            
+        
             target = arguments[0];
         
             if(typeof target === 'undefined' || (!target && typeof target === 'object')){
@@ -48,11 +50,12 @@ function initShallowCopy(){
                     }
                 }else{
                     if(_ownKeys){
-                        copykeys = _ownKeys(copy);
+                        copykeys = _getCopykeys(_ownKeys,copy);
                     }else if(_getOwnPropertySymbols){
-                        copykeys = _getOwnPropertySymbols(copy).concat(_getOwnPropertyNames(copy));
-                    }else if(_getOwnPropertyNames){
-                        copykeys = _getOwnPropertyNames(copy);
+                        copykeys = _getCopykeys(_getOwnPropertySymbols,copy);
+                        copykeys = copykeys.concat(_keys(copy));
+                    }else if(_keys){
+                        copykeys = _keys(copy);
                     }else{
                         for(key in copy){
                             if(_hasOwnProperty.call(copy,key)){
@@ -69,7 +72,6 @@ function initShallowCopy(){
                     }
                 }
             }
-            
             return target;
         },
         writable: false,
@@ -78,7 +80,6 @@ function initShallowCopy(){
     })
 }
 
-
 function _changeStringtoArray(str){
     let length = str.length || 0;
     let strArr = new Array(length);
@@ -86,6 +87,12 @@ function _changeStringtoArray(str){
         strArr[j] = str[j];
     }
     return strArr;
+}
+
+function _getCopykeys(func,obj){
+    return func(obj).filter(function(value){
+        return _getOwnPropertyDescriptor(obj,value).enumerable;
+    });
 }
 
 module.exports = {
