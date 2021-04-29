@@ -269,8 +269,6 @@ describe('#shallowCopy.js', () => {
             assert.notStrictEqual(map2, map3);
         });
 
-
-
     })
 
     describe('#set', () => {
