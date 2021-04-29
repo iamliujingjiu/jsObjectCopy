@@ -21,15 +21,7 @@ function initShallowCopy(){
             if(typeof target === 'undefined' || (!target && typeof target === 'object')){
                 throw Error('Cannot convert undefined or null to object');
             }
-            
-            if(typeof target !== 'object' && typeof target !== 'function' && typeof target !== 'string'){
-                return Object(target);
-            }
-            
-            if(typeof target === 'string'){
-                target = Object(target);
-            }
-    
+
             if(length === 1){
                 i = 0;
     
@@ -41,9 +33,15 @@ function initShallowCopy(){
                     target = new Set();
                 }else if((typeof target === 'object' && null !== target) || typeof target === 'function'){
                     target = {};
+                }else{
+                    return Object(target);
                 }
             }
-    
+
+            if(typeof target !== 'object' && typeof target !== 'function'){
+                target =  Object(target);
+            }
+         
             while(i < length){
                 
                 let copy = arguments[i++];
