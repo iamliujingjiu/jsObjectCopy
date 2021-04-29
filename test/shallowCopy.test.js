@@ -1,5 +1,4 @@
 var assert = require('assert');
-const { clear } = require('console');
 let shallowCopy = require('../shallowCopy');
 
 shallowCopy.initShallowCopy();
@@ -115,6 +114,13 @@ describe('#shallowCopy.js', () => {
         it('', () => {
             let str = 'test';
             assert.deepStrictEqual(Object.shallowCopy(str), new String(str));
+        });
+
+        it('', () => {
+            let str = 'test';
+            let str2 = 'code';
+            console.log(Object.shallowCopy(str, str2));
+            assert.deepStrictEqual(Object.shallowCopy(str, str2), new String(str));
         });
 
         it('', () => {
@@ -304,4 +310,5 @@ describe('#shallowCopy.js', () => {
             assert.notStrictEqual(set2, set3);
         });
     })
+
 })
