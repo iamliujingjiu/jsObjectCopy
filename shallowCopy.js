@@ -11,101 +11,155 @@ function initShallowCopy(){
     Object.defineProperty(Object, 'shallowCopy', {
         value : function shallowCopy(){
     
-            let target = arguments[0];
-    
-            let i = 1;
-    
-            let length = arguments.length;
-    
-           
-            if(typeof target === 'undefined' || (!target && typeof target === 'object')){
-                throw Error('Cannot convert undefined or null to object');
-            }
+            var targetVal, //拷贝的目标值
+            copyVal, //被拷贝的值
+            len, //arguments.length
+            i, //对应当前正在拷贝的copyVal处于len中的位置
+            keys, //当前正在拷贝的copyVal的属性集合
+            j,//遍历keys用来记录当前key的位置
+            keysLength,//keys.length
+            key,//遍历copyVal时用来临时存储属性名
+            value;//遍历copyVal时用来临时存储属性值
 
-            if(length === 1){
+            //获取第一项参数
+            targetVal = arguments[0];
+            //获取参数集合的长度
+            len = arguments.length;
+            //copyVal从第二项开始 0第一项 1第二项
+            i = 1;
+            
+            //第一项参数为undefined或null
+            if(isEmpty(targetVal)){
+                throw TypeError('Cannot convert undefined or null to object');
+            }
+            
+            //当只有一个参数时
+            if(len === 1){
+                //copyVal从第一项开始 0第一项 1第二项
                 i = 0;
-    
-                if(Array.isArray(target)){
-                    target = [];
-                }else if(target instanceof Map){
-                    target = new Map();
-                }else if(target instanceof Set){
-                    target = new Set();
-                }else if((typeof target === 'object' && null !== target) || typeof target === 'function'){
-                    target = {};
+                //当唯一的一个参数类型为Array时 注意现在的targetVal为第一个参数
+                if(isArr(targetVal)){
+                    targetVal = [];
+                }else if(isMap(targetVal)){
+                    targetVal = new Map();
+                }else if(isSet(targetVal)){
+                    targetVal = new Set();
+                }else if(isObj(targetVal)){
+                    targetVal = {};
                 }else{
-                    return Object(target);
+                    //当唯一的一个参数类型为基础类型时 使用Object包装并直接返回
+                    return Object(targetVal);
                 }
             }
-
-            if(typeof target !== 'object' && typeof target !== 'function'){
-                target =  Object(target);
+            
+            //当第一个参数类型为基础类型时 使用Object包装
+            if(!isObj(targetVal)){
+                targetVal =  Object(targetVal);
             }
-         
-            while(i < length){
+            
+            //从第i项遍历arguments
+            while(i < len){
+
+                copyVal = arguments[i++];
                 
-                let copy = arguments[i++];
-    
-                if(typeof copy === 'undefined' || (!copy && typeof copy === 'object')){
+                //当被拷贝的值为undefined或者null时 直接跳过这一次循环
+                if(isEmpty(copyVal)){
                     continue;
                 }
-                if(typeof copy === 'string'){
-                    copy = changeStringtoArray(copy);
+                
+                //当被拷贝的值为基础类型string时 将其转换为字符数组
+                if(typeof copyVal === 'string'){
+                    copyVal = changeStringtoArray(copyVal);
                 }
-    
-                //array map set也属于object
-                if((typeof target === 'object' && null !== target) || typeof target === 'function'){
-                    let keys = traverseObj(copy);
-                    for(let j = 0, len = keys.length; j < len; j++){
-                        let key = keys[j];
-                        target[key] = copy[key];
+        
+                //Array Map Set也属于Object
+                //类似
+                //let arr = [];
+                //arr.key = 'value';
+                //在这一步进行拷贝
+                if(isObj(copyVal)){
+                    //获取对象中所有的可遍历属性和Symbol属性
+                    keys = getObjKeys(copyVal);
+                    for(j = 0, keysLength = keys.length; j < keysLength; j++){
+                        key = keys[j];
+                        targetVal[key] = copyVal[key];
                     }
                 }
-    
-                // 1.两个都是map
-                if(copy instanceof Map && target instanceof Map){
-                    for(let [key, value] of copy){
-                        target.set(key, value);
+        
+                //当拷贝的目标值和被拷贝的值都是Map时 需要使用for...of...遍历拷贝
+                if(isMap(copyVal) && isMap(targetVal)){
+                    for([key, value] of copyVal){
+                        targetVal.set(key, value);
                     }
                 }
-    
-                // 2.两个都是set
-                if(copy instanceof Set && target instanceof Set){
-                    for(let value of copy){
-                        target.add(value);
+        
+                //同上
+                if(isSet(copyVal) && isSet(targetVal)){
+                    for(value of copyVal){
+                        targetVal.add(value);
                     }
                 }
-    
-                if(Array.isArray(copy)){
-                    for(let j = 0, len = copy.length; j < len; j++){
-                        target[j] = copy[j];
+                
+                //当被拷贝值为Array时 使用for循环将属性拷贝到目标值
+                if(isArr(copyVal)){
+                    for(j = 0, keysLength = copyVal.length; j < keysLength; j++){
+                        targetVal[j] = copyVal[j];
                     }
                 }
             }
-    
-            return target;
+            return targetVal;
         },
-        writable: false,
-        configurable: false,
+        writable: true,
+        configurable: true,
         enumerable: false
     })
 }
 
-function traverseObj(val){
-    let symbols = Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(val) : [];
-    let keys = Object.keys ? Object.keys(val) : [];
+function isObj(val){
+    return (typeof val === 'object' && null !== val) || typeof val === 'function';
+}
+
+function isArr(val){
+    return Array.isArray ? Array.isArray(val) : val instanceof Array;
+}
+
+function isMap(val){
+    return Map && val instanceof Map;
+}
+
+function isSet(val){
+    return Set && val instanceof Set;
+}
+
+function isEmpty(val){
+    return null === val || typeof val === 'undefined';
+}
+
+function getObjKeys(val){
+    var symbols, keys;
+    if(!isObj(val)){
+        return [];
+    }
+    keys = [];
+    symbols = Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(val) : [];
+    if(Object.keys){
+        keys = Object.keys(val);
+    }else{
+        for(var key in val){
+            keys.push(key);
+        }
+    }
     return Array.prototype.concat.call(keys, symbols);
 }
 
-function changeStringtoArray(str){
-    let length = str.length || 0;
-    let strArr = new Array(length);
+function changeStringtoArray(val){
+    let length = val.length || 0;
+    let charArr = new Array(length);
     for(let j = 0; j < length; j++){
-        strArr[j] = str[j];
+        charArr[j] = val[j];
     }
-    return strArr;
+    return charArr;
 }
-
 module.exports = {
     initShallowCopy : initShallowCopy
 }
