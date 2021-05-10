@@ -87,9 +87,9 @@ describe('#shallowCopy.js', () => {
 
         it('单独拷贝bigint类型的数值时返回的值的原始值与拷贝值一致', () => {
             var val = 1n;
-            assert.deepStrictEqual(Object.shallowCopy(val).valueOf(), val);
+            assert.strictEqual(Object.shallowCopy(val).valueOf(), val);
             val = BigInt(2);
-            assert.deepStrictEqual(Object.shallowCopy(val).valueOf(), val);
+            assert.strictEqual(Object.shallowCopy(val).valueOf(), val);
         });
        
     })
@@ -97,29 +97,54 @@ describe('#shallowCopy.js', () => {
     describe('#symbol', () => {
         it('单独拷贝symbol类型的数值时返回的值的原始值与拷贝值一致', () => {
             var val = Symbol();
-            assert.deepStrictEqual(Object.shallowCopy(val).valueOf(), val);
+            assert.strictEqual(Object.shallowCopy(val).valueOf(), val);
             val = Symbol('test');
-            assert.deepStrictEqual(Object.shallowCopy(val).valueOf(), val);
+            assert.strictEqual(Object.shallowCopy(val).valueOf(), val);
         });
     })
 
     describe('#string', () => {
-        it('', () => {
+        it('单独拷贝string类型的数值时返回的值的原始值与拷贝值一致', () => {
             let str = 'test';
             assert.strictEqual(Object.shallowCopy(str).valueOf(), str);
-        });
-
-        it('', () => {
-            let str = 'test';
             assert.deepStrictEqual(Object.shallowCopy(str), new String(str));
         });
 
-        it('', () => {
+        it('x', () => {
             let str = 'test';
-            let str2 = 'code';
-            console.log(Object.shallowCopy(str, str2));
-            assert.deepStrictEqual(Object.shallowCopy(str, str2), new String(str));
+            let str2 = 'hello world';
+            let str3 = new String(str2);
+            assert.strictEqual(Object.shallowCopy(str, str2).valueOf(), str2);
+            assert.deepStrictEqual(Object.shallowCopy(str, str2), str3);
         });
+
+        it('x', () => {
+            let str = 'hello world';
+            let str2 = 'test';
+            let str3 = 'testo world';
+            let str4 = new String(str3);
+            assert.strictEqual(Object.shallowCopy(str, str2).valueOf(), str3);
+            assert.deepStrictEqual(Object.shallowCopy(str, str2), str4);
+        });
+
+        it('x', () => {
+            let str = 'hello world';
+            let arr = [1, 2, 3, 4, 5];
+            let str3 = '12345 world';
+            let str4 = new String(str3);
+            assert.strictEqual(Object.shallowCopy(str, arr).valueOf(), str3);
+            assert.deepStrictEqual(Object.shallowCopy(str, arr), str4);
+        });
+
+        it('x', () => {
+            let str = 'hello world';
+            let arr = [{name : 'OBj_1'}, {name : 'OBj_2'}, {name : 'OBj_3'}, {name : 'OBj_4'}, {name : 'OBj_5'}];
+            let str3 = '12345 world';
+            let str4 = new String(str3);
+            assert.strictEqual(Object.shallowCopy(str, arr).valueOf(), str3);
+            assert.deepStrictEqual(Object.shallowCopy(str, arr), str4);
+        });
+
 
         it('', () => {
             let str = 'test';

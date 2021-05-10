@@ -20,6 +20,7 @@ function initShallowCopy(){
             keysLength,//keys.length
             key,//遍历copyVal时用来临时存储属性名
             value;//遍历copyVal时用来临时存储属性值
+            isStr = false;
 
             //获取第一项参数
             targetVal = arguments[0];
@@ -54,7 +55,12 @@ function initShallowCopy(){
             
             //当第一个参数类型为基础类型时 使用Object包装
             if(!isObj(targetVal)){
-                targetVal =  Object(targetVal);
+                if(typeof targetVal === 'string'){
+                    isStr = true;
+                    targetVal = changeStringtoArray(targetVal);
+                }else{
+                    targetVal =  Object(targetVal);
+                }
             }
             
             //从第i项遍历arguments
@@ -85,27 +91,26 @@ function initShallowCopy(){
                         targetVal[key] = copyVal[key];
                     }
                 }
-        
+                
                 //当拷贝的目标值和被拷贝的值都是Map时 需要使用for...of...遍历拷贝
                 if(isMap(copyVal) && isMap(targetVal)){
                     for([key, value] of copyVal){
                         targetVal.set(key, value);
                     }
-                }
-        
                 //同上
-                if(isSet(copyVal) && isSet(targetVal)){
+                }else if(isSet(copyVal) && isSet(targetVal)){
                     for(value of copyVal){
                         targetVal.add(value);
                     }
-                }
-                
                 //当被拷贝值为Array时 使用for循环将属性拷贝到目标值
-                if(isArr(copyVal)){
+                }else if(isArr(copyVal)){
                     for(j = 0, keysLength = copyVal.length; j < keysLength; j++){
                         targetVal[j] = copyVal[j];
                     }
                 }
+            }
+            if(isStr){
+                targetVal = new String(Array.prototype.join.call(targetVal, ''));
             }
             return targetVal;
         },
