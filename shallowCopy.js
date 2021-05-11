@@ -151,7 +151,9 @@ function getObjKeys(val){
         keys = Object.keys(val);
     }else{
         for(var key in val){
-            keys.push(key);
+            if(Object.prototype.hasOwnProperty.call(val, key)){
+                keys.push(key);
+            }
         }
     }
     return Array.prototype.concat.call(keys, symbols);
